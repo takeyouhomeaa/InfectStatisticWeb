@@ -103,50 +103,50 @@
 
 <script type="text/javascript">
     // 基于准备好的dom，初始化echarts实例
-    function getJsonData(url) {
-        var url = url;
-        var request = new XMLHttpRequest();
-        request.open("get", url);/*设置请求方法与路径*/
-        request.send(null);/*不发送数据到服务器*/
-        request.onload = function () {/*XHR对象获取到返回信息后执行*/
-            if (request.status == 200) {/*返回状态为200，即为数据获取成功*/
-                var json = JSON.parse(request.responseText);
-                for(var i=0;i<json.length;i++){
-                    console.log(json[i].name);
-                }
-                console.log(json);
-                return json;
-            }
-        }
-    }
     var myChart = echarts.init(document.getElementById('main'));
-    var json = getJsonData("data.json");
+    $.get('data.json').done(function (data) {
+        listByCountryTypeService = data.getListByCountryTypeService1;
+        var processedData = []
+        listByCountryTypeService.forEach(item => {
+                processedData.push({
+                    name: item.provinceShortName,
+                    value: item.confirmedCount,
+                    deadCount: item.deadCount,
+                    curedCount: item.curedCount
+                })
+            }
+        )
+        console.log(processedData,"pro");
 
-    // 指定图表的配置项和数据
-    var option = {
-        //标题设置
-        title: {
-            text: 'ECharts 入门示例',
-            subtext: '当前现有确诊病例数，排除治愈、死亡',
-            left:'center',
-        },
-        series: [{
-            type:'map',
-            map:'china',
-            label:{
-                show:true,
+        // 指定图表的配置项和数据
+        myChart.setOption ({
+            //标题设置
+
+            title: {
+                text: 'ECharts 入门示例',
+                subtext: '当前现有确诊病例数，排除治愈、死亡',
+                left:'center',
             },
-            emphasis:{
-                label: {
-                    show:true
+            series: [{
+                type:'map',
+                map:'china',
+                label:{
+                    show:true,
                 },
+                data: processedData,
+            }],
+            tooltip:{
+                formatter: function (params) {
+                    console.log(params,"params")
+                    return `地区:${params.name}<br/>确诊:${params.value}人<br/>`;
+                }
             },
-        }],
-        backgroundColor:'#f7f7f7',
-    };
+            backgroundColor:'#f7f7f7',
+        })
 
-    // 使用刚指定的配置项和数据显示图表。
-    myChart.setOption(option);
+    })
+
+
 </script>
 </body>
 </html>
