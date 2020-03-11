@@ -72,11 +72,11 @@
 <div class="container">
     <div id="main" class="panel panel-default" style="width: 100%;height:400px;"></div>
 </div>
-<div class="container" style="text-align: center">
-    <button type="button" class="btn btn-default" id="">新增确诊趋势</button>
-    <button type="button" class="btn btn-default">累计确诊趋势</button>
-    <button type="button" class="btn btn-default">累计治愈/死亡</button>
-</div>
+<!--<div class="container" style="text-align: center">-->
+<!--    <button type="button" class="btn btn-default" id="">新增确诊趋势</button>-->
+<!--    <button type="button" class="btn btn-default">累计确诊趋势</button>-->
+<!--    <button type="button" class="btn btn-default">累计治愈/死亡</button>-->
+<!--</div>-->
 
 <div class="container">
     <div class="panel panel-default" id="cityData">
@@ -100,18 +100,16 @@
         var msg = str[1];
 
         console.log(msg,'msg')
-        var form;
         var processedData = [];
         res.forEach(item => {
-            console.log(item)
-            if(item.locationId.equals(msg))
+            if(item.locationId == msg)
                 processedData.push({
+                    provinceName:item.provinceName,
                     statisticsData:item.statisticsData,
                     cities:item.cities
                 })
             }
         );
-        var provinceMap = '';
         console.log(processedData,"pro");
         var cityData = [];
         processedData[0].cities.forEach(item=>{
@@ -128,9 +126,6 @@
 
         div=document.getElementById('cityData');
         var tab='<table border=1 width=100%">';
-        // for(var i=0;i<processedData[0].length;i++){
-        //
-        // }
         tab+='<tr>' +
             '<th>城市</th>' +
             '<th>现今确诊人数</th>' +
@@ -160,14 +155,14 @@
         tab+='</table>';
         div.innerHTML=tab;
 
-        document.getElementById('province').innerText=processedData[0].name;
+        document.getElementById('province').innerText=processedData[0].provinceName;
         document.getElementById('currentConfirmed').innerText=currentConfirmed;
         document.getElementById('confirmed').innerText=confirmed;
         document.getElementById('cure').innerText=cure;
         document.getElementById('death').innerText=death;
-
-        $.get('json/hubei.json', function (json) {
-            echarts.registerMap('hubei', json);
+        var mapName = 'json/' + msg + '.json';
+        $.get(mapName, function (json) {
+            echarts.registerMap(msg, json);
             var myChart = echarts.init(document.getElementById('main'));
             console.log(cityData,"city");
             myChart.setOption ({
@@ -180,7 +175,7 @@
                 },
                 series: [{
                     type:'map',
-                    map:'hubei',
+                    map:msg,
                     label:{
                         show:true,
                     },
