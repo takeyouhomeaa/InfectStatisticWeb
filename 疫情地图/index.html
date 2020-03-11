@@ -4,8 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
-    <title>Bootstrap 101 Template</title>
+    <title>疫情统计</title>
 
     <style>
         .container
@@ -17,12 +16,17 @@
             margin: auto;
         }
         .container table tr td{
-                padding: 5px 150px;
+            padding-top: 20px;
+            padding-bottom: 5px;
+            padding-right: 40px;
+            padding-left: 40px;
         }
         ul{
             list-style: none;
         }
         ul li{
+            width: 110px;
+            font-weight:bold ;
         }
         div #map{
             background: gray;
@@ -36,49 +40,73 @@
 <body>
 <div id="container" class="container">
     <div class="page-header">
-        <h1>Example page header <small>Subtext for header</small></h1>
+        <small>新型冠状病毒肺炎</small>
+        <br/>
+        <h1>疫情统计信息统计</h1>
     </div>
 </div>
 
+
 <div class="container">
+    <p id="time" style="float: left">这是时间</p>
+
     <div  class="col-md-12 panel panel-default">
-        <table id="table">
-            <tr>
-                <td>
-                    <ul>
-                        <li >累计确诊</li>
-                        <li id="diagnose">123</li>
-                    </ul>
-                </td>
-                <td>
-                    <ul>
-                        <li>累计治愈</li>
-                        <li id="cure">123</li>
-                    </ul>
-                </td>
-                <td>
-                    <ul>
-                        <li>累计死亡</li>
-                        <li id="death">123</li>
-                    </ul>
-                </td>
-            </tr>
-        </table>
+        <div class="panel-body">
+            <table id="table">
+                <tr>
+                    <td>
+                        <ul>
+                            <li>现存确诊</li>
+                            <li id="cDiagnose" style="color: orange;font-size: 30px">123</li>
+                        </ul>
+                    </td>
+                    <td>
+                        <ul>
+                            <li>累计确诊</li>
+                            <li id="diagnose" style="color: red;font-size: 30px">123</li>
+                        </ul>
+                    </td>
+                    <td>
+                        <ul>
+                            <li>累计治愈</li>
+                            <li id="cure" style="color: green;font-size: 30px">123</li>
+                        </ul>
+                    </td>
+                    <td>
+                        <ul>
+                            <li>累计死亡</li>
+                            <li id="death" style="color: black;font-size: 30px">123</li>
+                        </ul>
+                    </td>
+                </tr>
+            </table>
+        </div>
     </div>
 </div>
+
 <div class="container">
     <div id="main" class="panel panel-default container" style="width: 100%;height:600px;">
-
     </div>
 </div>
-<!-- jQuery (Bootstrap 的所有 JavaScript 插件都依赖 jQuery，所以必须放在前边) -->
-<script src="js/bootstrap.min.js"></script>
-<!-- 加载 Bootstrap 的所有 JavaScript 插件。你也可以根据需要只加载单个插件。 -->
+
+<div class="container">
+    <div id="chart" class="panel panel-default container" style="width: 100%;height:600px;">
+    </div>
+</div>
+
 <script src="js/jquery-3.4.1.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
 <script src="js/china.js"></script>
 
 <script type="text/javascript">
-    // 基于准备好的dom，初始化echarts实例
+    var time = '';
+    var myDate = new Date();
+    year = myDate.getFullYear();
+    month = myDate.getMonth() + 1;
+    day = myDate.getDate();
+    time = '数据更新至' + year + '-' + month + '-' + day;
+    document.getElementById('time').innerText = time;
+
     var myChart = echarts.init(document.getElementById('main'));
     var url = "data.json";
     var request = new XMLHttpRequest();
@@ -111,13 +139,10 @@
         document.getElementById("diagnose").innerText = diagnose;
         document.getElementById("cure").innerText = cure;
         document.getElementById("death").innerText = death
-        // 指定图表的配置项和数据
         myChart.setOption ({
-            //标题设置
-
             title: {
-                text: 'ECharts 入门示例',
-                subtext: '当前现有确诊病例数，排除治愈、死亡',
+                text: '新冠疫情状况分布图',
+                subtext: '当前现有确诊病例数，治愈、死亡',
                 left:'center',
             },
             series: [{
