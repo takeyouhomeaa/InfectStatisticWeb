@@ -72,16 +72,25 @@
 <div class="container">
     <div id="main" class="panel panel-default" style="width: 100%;height:400px;"></div>
 </div>
-<!--<div class="container" style="text-align: center">-->
-<!--    <button type="button" class="btn btn-default" id="">新增确诊趋势</button>-->
-<!--    <button type="button" class="btn btn-default">累计确诊趋势</button>-->
-<!--    <button type="button" class="btn btn-default">累计治愈/死亡</button>-->
-<!--</div>-->
+
+<div class="container">
+    <div class="panel panel-default">
+        <div id="trend" class="panel panel-default" style="width: 100%;height:400px;"></div>
+
+        <div style="text-align: center">
+            <button type="button" class="btn btn-default" id="btn1">新增确诊趋势</button>
+            <button type="button" class="btn btn-default" id="btn2">累计确诊趋势</button>
+            <button type="button" class="btn btn-default" id="btn3">累计治愈/死亡</button>
+        </div>
+    </div>
+</div>
+
 
 <div class="container">
     <div class="panel panel-default" id="cityData">
     </div>
 </div>
+
 
 <div>
     <br>
@@ -93,7 +102,14 @@
 <script src="js/bootstrap.min.js"></script>
 
 <script type="text/javascript">
-    // 基于准备好的dom，初始化echarts实例
+
+    var confirmedCount = [];
+    var currentConfirmedCount = [];
+    var curedCount = [];
+    var deadCount = []
+    var dateId = [];
+
+
     $.getJSON ("data.json", function (res) {
         var url =  window.location.href;
         var str = url.split('?');
@@ -147,7 +163,7 @@
         var tab='<table border=1 width=100%">';
         tab+='<tr>' +
             '<th>城市</th>' +
-            '<th>现今确诊人数</th>' +
+            '<th>现存确诊人数</th>' +
             '<th>累计确诊人数</th>' +
             '<th>疑似人数</th>' +
             '<th>治愈人数</th>' +
@@ -185,7 +201,8 @@
             echarts.registerMap(msg, json);
             var myChart = echarts.init(document.getElementById('main'));
             console.log(cityData,"city");
-            myChart.setOption ({
+
+            var option = {
                 //标题设置
 
                 title: {
@@ -203,7 +220,7 @@
                 }],
                 tooltip:{
                     formatter: function (params) {
-                       // console.log(params)
+                        // console.log(params)
                         return `地区：${params.name}<br/>确诊：${params.value|| 0}人<br/>
                         治愈：${(params.data && params.data.curedCount) || 0}人<br/>死亡：${params.data?.deadCount || 0}人<br/>`;
                     }
@@ -224,9 +241,163 @@
                     }
                 ],
                 backgroundColor:'#f7f7f7',
-            });
+            }
+            myChart.setOption (option);
         });
-    })
+
+        $.getJSON (processedData[0].statisticsData, function (str) {
+            var dateStaging = [];
+            dateStaging = str.data;
+            var processedData = [];
+            dateStaging.forEach(item=>{
+               processedData.push({
+                   confirmedCount:item.confirmedCount,
+                   currentConfirmedCount:item.currentConfirmedCount,
+                   curedCount:item.curedCount,
+                   deadCount:item.deadCount,
+                   dateId:item.dateId,
+
+               })
+            });
+            console.log(processedData,"stg");
+
+            for(i = 0 ; i < processedData.length;i++){
+                confirmedCount.push(processedData[i].confirmedCount);
+                currentConfirmedCount.push(processedData[i].currentConfirmedCount);
+                curedCount.push(processedData[i].curedCount);
+                deadCount.push(processedData[i].deadCount);
+                dateId.push(processedData[i].dateId);
+            }
+
+            var j = 0;
+            var dates = [];
+            for(i = 0;i < dateId.length ;i++){
+               dates[j] =  dateId[i] % 10000;
+               j++;
+            }
+            var processedDate = [];
+            for(i = 0;i < dates.length;i++){
+                var d =  dates[i] % 100;
+                var m =  Math.floor(dates[i] / 100);
+                processedDate[i] = m + '.' + d;
+            }
+            console.log(processedDate,'date')}
+
+            var myChart1 = echarts.init(document.getElementById('trend'));
+            option1 = {
+                xAxis: {
+                    type: 'category',
+                    data:processedDate,
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [{
+                    data: currentConfirmedCount,
+                    type: 'line',
+                    smooth: true
+                }],
+                tooltip:{
+                    formatter: function (params) {
+                        // console.log(params)
+                        return `${params.value}`;
+                    }
+                }
+            };
+
+            var colors = ['#5793f3', '#d14a61', '#675bba'];
+
+
+            option2 = {
+                color: colors,
+
+                tooltip: {
+                    trigger: 'none',
+                    axisPointer: {
+                        type: 'cross'
+                    }
+                },
+                legend: {
+                    data:['2015 降水量', '2016 降水量']
+                },
+                grid: {
+                    top: 70,
+                    bottom: 50
+                },
+                xAxis: [
+                    {
+                        type: 'category',
+                        axisTick: {
+                            alignWithLabel: true
+                        },
+                        axisLine: {
+                            onZero: false,
+                            lineStyle: {
+                                color: colors[1]
+                            }
+                        },
+                        axisPointer: {
+                            label: {
+                                formatter: function (params) {
+                                    return '降水量  ' + params.value
+                                        + (params.seriesData.length ? '：' + params.seriesData[0].data : '');
+                                }
+                            }
+                        },
+                        data: ['2016-1', '2016-2', '2016-3', '2016-4', '2016-5', '2016-6', '2016-7', '2016-8', '2016-9', '2016-10', '2016-11', '2016-12']
+                    },
+                    {
+                        type: 'category',
+                        axisTick: {
+                            alignWithLabel: true
+                        },
+                        axisLine: {
+                            onZero: false,
+                            lineStyle: {
+                                color: colors[0]
+                            }
+                        },
+                        axisPointer: {
+                            label: {
+                                formatter: function (params) {
+                                    return '降水量  ' + params.value
+                                        + (params.seriesData.length ? '：' + params.seriesData[0].data : '');
+                                }
+                            }
+                        },
+                        data: ['2015-1', '2015-2', '2015-3', '2015-4', '2015-5', '2015-6', '2015-7', '2015-8', '2015-9', '2015-10', '2015-11', '2015-12']
+                    }
+                ],
+                yAxis: [
+                    {
+                        type: 'value'
+                    }
+                ],
+                series: [
+                    {
+                        name: '2015 降水量',
+                        type: 'line',
+                        xAxisIndex: 1,
+                        smooth: true,
+                        data: [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3]
+                    },
+                    {
+                        name: '2016 降水量',
+                        type: 'line',
+                        smooth: true,
+                        data: [3.9, 5.9, 11.1, 18.7, 48.3, 69.2, 231.6, 46.6, 55.4, 18.4, 10.3, 0.7]
+                    }
+                ]
+            };
+
+            myChart1.setOption(option1)
+
+            var btn1 = document.getElementById('btn1');
+            var btn2 = document.getElementById('btn2');
+            var btn3 = document.getElementById('btn3');
+        });
+
+    });
 </script>
 
 </body>
