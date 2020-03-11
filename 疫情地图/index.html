@@ -31,6 +31,10 @@
         div #map{
             background: gray;
         }
+        #footer{
+            text-align: center;
+            padding-bottom:15px ;
+        }
     </style>
     <!-- Bootstrap -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -40,14 +44,12 @@
 <body>
 <div id="container" class="container">
     <div class="page-header">
-        <small>新型冠状病毒肺炎</small>
-        <br/>
-        <h1>疫情统计信息统计</h1>
+        <small>新型冠状病毒肺炎<h1>疫情统计信息统计</h1></small>
     </div>
 </div>
 
 
-<div class="container">
+<div  class="container">
     <p id="time" style="float: left">这是时间</p>
 
     <div  class="col-md-12 panel panel-default">
@@ -89,10 +91,12 @@
     </div>
 </div>
 
-<div class="container">
-    <div id="chart" class="panel panel-default container" style="width: 100%;height:600px;">
+<footer class="container">
+    <hr>
+    <div>
+        <span id="footer">Copyright 2020.3.All Rights Reserved </span>
     </div>
-</div>
+</footer>
 
 <script src="js/jquery-3.4.1.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
@@ -120,7 +124,7 @@
             json.forEach(item => {
                     processedData.push({
                         name: item.provinceShortName,
-                        value: item.confirmedCount,
+                        value: item.currentConfirmedCount,
                         deadCount: item.deadCount,
                         curedCount: item.curedCount
                     })
