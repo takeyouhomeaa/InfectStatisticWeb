@@ -134,7 +134,8 @@
                     return `地区：${params.name}<br/>确诊：${params.value || 0}人<br/>
                     治愈：${(params.data && params.data.curedCount) || 0}人<br/>死亡：${params.data?.deadCount || 0}人<br/>
                     <a href="details.html?${params.name}">查看</a>`;
-                }
+                },
+                enterable: true
             },
             visualMap:[
                 {
@@ -144,10 +145,11 @@
                         { gt: 1000, lte: 9999 }, // (1000, 9999]
                         { gt: 100, lte: 999 }, // (100, 999]
                         { gt: 10, lte: 99 }, // (10, 99]
-                        { ge: 1, lte: 9 }, // (0, 9]
+                        { gt: 1, lte: 9 }, // (0, 9]
+                        { value:0}
                     ],
                     inRange: {
-                        color: ['#fdebcf', '#f59e83', '#e55a4e', '#cb2a2f', '#811c24']
+                        color: ['#ffffff','#fdebcf', '#f59e83', '#e55a4e', '#cb2a2f', '#811c24']
                     }
                 }
             ],
