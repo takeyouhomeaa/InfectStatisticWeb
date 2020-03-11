@@ -95,18 +95,25 @@
 <script type="text/javascript">
     // 基于准备好的dom，初始化echarts实例
     $.getJSON ("data.json", function (res) {
-        var provinceMap = 'js/hubei.js';
-        //document.getElementById('map').setAttribute('src',provinceMap);
+        var url =  window.location.href;
+        var str = url.split('?');
+        var msg = str[1];
+
+        console.log(msg,'msg')
         var form;
         var processedData = [];
         res.forEach(item => {
+            console.log(item)
+            if(item.locationId.equals(msg))
                 processedData.push({
+                    statisticsData:item.statisticsData,
                     cities:item.cities
                 })
             }
         );
+        var provinceMap = '';
         console.log(processedData,"pro");
-        var cityData = []
+        var cityData = [];
         processedData[0].cities.forEach(item=>{
             cityData.push({
                 name:item.cityName + '市',
@@ -182,7 +189,7 @@
                 tooltip:{
                     formatter: function (params) {
                         return `地区：${params.name}<br/>确诊：${params.value|| 0}人<br/>
-                        治愈：${(params.data.curedCount ) || 0}人<br/>死亡：${params.data.deadCount || 0}人<br/>`;
+                        治愈：${(params.data && params.data.curedCount) || 0}人<br/>死亡：${params.data?.deadCount || 0}人<br/>`;
                     }
                 },
                 visualMap:[
