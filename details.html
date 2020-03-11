@@ -94,23 +94,31 @@
 
 <script type="text/javascript">
     // 基于准备好的dom，初始化echarts实例
-    var Numerical = [];
     $.getJSON ("data.json", function (res) {
-        var provinceMap = 'js/hebei.js';
+        var provinceMap = 'js/hubei.js';
         //document.getElementById('map').setAttribute('src',provinceMap);
         var form;
         var processedData = [];
         res.forEach(item => {
                 processedData.push({
-                    name: item.provinceShortName,
-                    value: item.confirmedCount,
-                    deadCount: item.deadCount,
-                    curedCount: item.curedCount,
                     cities:item.cities
                 })
             }
         );
-        console.log(processedData);
+        console.log(processedData,"pro");
+        var cityData = []
+        processedData[0].cities.forEach(item=>{
+            cityData.push({
+                name:item.cityName + '市',
+                value:item.currentConfirmedCount,
+                confirmedCount:item.confirmedCount,
+                suspectedCount:item.suspectedCount,
+                curedCount:item.curedCount,
+                deadCount:item.deadCount,
+            })
+        })
+
+
         div=document.getElementById('cityData');
         var tab='<table border=1 width=100%">';
         // for(var i=0;i<processedData[0].length;i++){
@@ -151,9 +159,10 @@
         document.getElementById('cure').innerText=cure;
         document.getElementById('death').innerText=death;
 
-        $.get('json/hebei.json', function (json) {
-            echarts.registerMap('hebei', json);
+        $.get('json/hubei.json', function (json) {
+            echarts.registerMap('hubei', json);
             var myChart = echarts.init(document.getElementById('main'));
+            console.log(cityData,"city");
             myChart.setOption ({
                 //标题设置
 
@@ -164,30 +173,30 @@
                 },
                 series: [{
                     type:'map',
-                    map:'hebei',
+                    map:'hubei',
                     label:{
                         show:true,
                     },
-                    data:processedData
+                    data:cityData
                 }],
                 tooltip:{
                     formatter: function (params) {
-                        return `地区：${params.name}<br/>确诊：${params.value || 0}人<br/>
-                        治愈：${(params.data && params.data.curedCount) || 0}人<br/>死亡：${params.data?.deadCount || 0}人<br/>`;
+                        return `地区：${params.name}<br/>确诊：${params.value|| 0}人<br/>
+                        治愈：${(params.data.curedCount ) || 0}人<br/>死亡：${params.data.deadCount || 0}人<br/>`;
                     }
                 },
                 visualMap:[
                     {
-                        type: 'piecewise',
                         pieces:[
                             { gt: 10000 }, // (10000, Infinity]
                             { gt: 1000, lte: 9999 }, // (1000, 9999]
                             { gt: 100, lte: 999 }, // (100, 999]
                             { gt: 10, lte: 99 }, // (10, 99]
-                            { ge: 1, lte: 9 }, // (0, 9]
+                            { gt: 1, lte: 9 }, // (0, 9]
+                            { value:0}
                         ],
                         inRange: {
-                            color: ['#fdebcf', '#f59e83', '#e55a4e', '#cb2a2f', '#811c24']
+                            color: ['#ffffff','#fdebcf', '#f59e83', '#e55a4e', '#cb2a2f', '#811c24']
                         }
                     }
                 ],
