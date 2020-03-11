@@ -98,7 +98,9 @@
         var url =  window.location.href;
         var str = url.split('?');
         var msg = str[1];
-
+        if(msg == 710000){
+            window.location.href="index.html";
+        }
         console.log(msg,'msg')
         var processedData = [];
         res.forEach(item => {
@@ -112,17 +114,34 @@
         );
         console.log(processedData,"pro");
         var cityData = [];
-        processedData[0].cities.forEach(item=>{
-            cityData.push({
-                name:item.cityName + '市',
-                value:item.currentConfirmedCount,
-                confirmedCount:item.confirmedCount,
-                suspectedCount:item.suspectedCount,
-                curedCount:item.curedCount,
-                deadCount:item.deadCount,
+        if(processedData[0].provinceName == '上海市' || processedData[0].provinceName == '北京市'
+        || processedData[0].provinceName == '重庆市'|| processedData[0].provinceName == '天津市') {
+            processedData[0].cities.forEach(item=>{
+                cityData.push(
+                    {
+                    name:item.cityName,
+                    value:item.currentConfirmedCount,
+                    confirmedCount:item.confirmedCount,
+                    suspectedCount:item.suspectedCount,
+                    curedCount:item.curedCount,
+                    deadCount:item.deadCount,
+                })
             })
-        })
+        }else{
+            processedData[0].cities.forEach(item=>{
+                cityData.push(
+                    {
+                        name:item.cityName +'市',
+                        value:item.currentConfirmedCount,
+                        confirmedCount:item.confirmedCount,
+                        suspectedCount:item.suspectedCount,
+                        curedCount:item.curedCount,
+                        deadCount:item.deadCount,
+                    })
+            })
+        }
 
+        console.log(cityData);
 
         div=document.getElementById('cityData');
         var tab='<table border=1 width=100%">';
@@ -162,6 +181,7 @@
         document.getElementById('death').innerText=death;
         var mapName = 'json/' + msg + '.json';
         $.get(mapName, function (json) {
+            console.log(mapName,'map');
             echarts.registerMap(msg, json);
             var myChart = echarts.init(document.getElementById('main'));
             console.log(cityData,"city");
@@ -177,12 +197,13 @@
                     type:'map',
                     map:msg,
                     label:{
-                        show:true,
+                        show:false,
                     },
                     data:cityData
                 }],
                 tooltip:{
                     formatter: function (params) {
+                       // console.log(params)
                         return `地区：${params.name}<br/>确诊：${params.value|| 0}人<br/>
                         治愈：${(params.data && params.data.curedCount) || 0}人<br/>死亡：${params.data?.deadCount || 0}人<br/>`;
                     }
@@ -190,11 +211,11 @@
                 visualMap:[
                     {
                         pieces:[
-                            { gt: 10000 }, // (10000, Infinity]
-                            { gt: 1000, lte: 9999 }, // (1000, 9999]
-                            { gt: 100, lte: 999 }, // (100, 999]
-                            { gt: 10, lte: 99 }, // (10, 99]
-                            { gt: 1, lte: 9 }, // (0, 9]
+                            { min: 10000 }, // (10000, Infinity]
+                            { min: 1000, max: 9999 }, // (1000, 9999]
+                            { min: 100, max: 999 }, // (100, 999]
+                            { min: 10, max: 99 }, // (10, 99]
+                            { min: 1, max: 9 }, // (0, 9]
                             { value:0}
                         ],
                         inRange: {
