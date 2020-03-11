@@ -78,9 +78,8 @@
         <div id="trend" class="panel panel-default" style="width: 100%;height:400px;"></div>
 
         <div style="text-align: center">
-            <button type="button" class="btn btn-default" id="btn1">新增确诊趋势</button>
-            <button type="button" class="btn btn-default" id="btn2">累计确诊趋势</button>
-            <button type="button" class="btn btn-default" id="btn3">累计治愈/死亡</button>
+            <button type="button" class="btn btn-default" id="btn1">新增/累计确诊</button>
+            <button type="button" class="btn btn-default" id="btn2">累计治愈/死亡</button>
         </div>
     </div>
 </div>
@@ -108,17 +107,19 @@
     var curedCount = [];
     var deadCount = []
     var dateId = [];
+    var processedData = [];
+    var msg = []
+    var processedDate = [];
 
-
+    $.ajaxSettings.async = false;
     $.getJSON ("data.json", function (res) {
         var url =  window.location.href;
         var str = url.split('?');
-        var msg = str[1];
+        msg = str[1];
         if(msg == 710000){
             window.location.href="index.html";
         }
         console.log(msg,'msg')
-        var processedData = [];
         res.forEach(item => {
             if(item.locationId == msg)
                 processedData.push({
@@ -128,276 +129,340 @@
                 })
             }
         );
-        console.log(processedData,"pro");
-        var cityData = [];
-        if(processedData[0].provinceName == '上海市' || processedData[0].provinceName == '北京市'
-        || processedData[0].provinceName == '重庆市'|| processedData[0].provinceName == '天津市') {
-            processedData[0].cities.forEach(item=>{
-                cityData.push(
-                    {
-                    name:item.cityName,
+    });
+     //把json省份数据进行处理获得各个市的数据
+    var cityData = [];
+    if(processedData[0].provinceName == '上海市' || processedData[0].provinceName == '北京市'
+    || processedData[0].provinceName == '重庆市'|| processedData[0].provinceName == '天津市') {
+        processedData[0].cities.forEach(item=>{
+            cityData.push(
+                {
+                name:item.cityName,
+                value:item.currentConfirmedCount,
+                confirmedCount:item.confirmedCount,
+                suspectedCount:item.suspectedCount,
+                curedCount:item.curedCount,
+                deadCount:item.deadCount,
+            })
+        })
+    }else{
+        processedData[0].cities.forEach(item=>{
+            cityData.push(
+                {
+                    name:item.cityName +'市',
                     value:item.currentConfirmedCount,
                     confirmedCount:item.confirmedCount,
                     suspectedCount:item.suspectedCount,
                     curedCount:item.curedCount,
                     deadCount:item.deadCount,
                 })
-            })
-        }else{
-            processedData[0].cities.forEach(item=>{
-                cityData.push(
-                    {
-                        name:item.cityName +'市',
-                        value:item.currentConfirmedCount,
-                        confirmedCount:item.confirmedCount,
-                        suspectedCount:item.suspectedCount,
-                        curedCount:item.curedCount,
-                        deadCount:item.deadCount,
-                    })
-            })
-        }
+        })
+    }
 
-        console.log(cityData);
+    console.log(cityData);
 
-        div=document.getElementById('cityData');
-        var tab='<table border=1 width=100%">';
-        tab+='<tr>' +
-            '<th>城市</th>' +
-            '<th>现存确诊人数</th>' +
-            '<th>累计确诊人数</th>' +
-            '<th>疑似人数</th>' +
-            '<th>治愈人数</th>' +
-            '<th>死亡人数</th>' +
-            '</tr>';
-        var currentConfirmed = 0;
-        var confirmed = 0;
-        var cure = 0;
-        var death = 0;
-        for(i = 0;i<processedData[0].cities.length;i++) {
-            tab += '<tr>'
-            tab += "<td>" + processedData[0].cities[i].cityName + "</td>";
-            tab += "<td>" + processedData[0].cities[i].currentConfirmedCount + "</td>";
-            tab += "<td>" + processedData[0].cities[i].confirmedCount + "</td>";
-            tab += "<td>" + processedData[0].cities[i].suspectedCount + "</td>";
-            tab += "<td>" + processedData[0].cities[i].curedCount + "</td>";
-            tab += "<td>" + processedData[0].cities[i].deadCount + "</td>";
-            tab += '</tr>';
-            currentConfirmed += processedData[0].cities[i].currentConfirmedCount;
-            confirmed += processedData[0].cities[i].confirmedCount;
-            cure += processedData[0].cities[i].curedCount;
-            death += processedData[0].cities[i].deadCount;
-        }
-        tab+='</table>';
-        div.innerHTML=tab;
+    div=document.getElementById('cityData');
+    var tab='<table border=1 width=100%">';
+    tab+='<tr>' +
+        '<th>城市</th>' +
+        '<th>现存确诊人数</th>' +
+        '<th>累计确诊人数</th>' +
+        '<th>疑似人数</th>' +
+        '<th>治愈人数</th>' +
+        '<th>死亡人数</th>' +
+        '</tr>';
+    var currentConfirmed = 0;
+    var confirmed = 0;
+    var cure = 0;
+    var death = 0;
+    for(i = 0;i<processedData[0].cities.length;i++) {
+        tab += '<tr>'
+        tab += "<td>" + processedData[0].cities[i].cityName + "</td>";
+        tab += "<td>" + processedData[0].cities[i].currentConfirmedCount + "</td>";
+        tab += "<td>" + processedData[0].cities[i].confirmedCount + "</td>";
+        tab += "<td>" + processedData[0].cities[i].suspectedCount + "</td>";
+        tab += "<td>" + processedData[0].cities[i].curedCount + "</td>";
+        tab += "<td>" + processedData[0].cities[i].deadCount + "</td>";
+        tab += '</tr>';
+        currentConfirmed += processedData[0].cities[i].currentConfirmedCount;
+        confirmed += processedData[0].cities[i].confirmedCount;
+        cure += processedData[0].cities[i].curedCount;
+        death += processedData[0].cities[i].deadCount;
+    }
+    tab+='</table>';
+    div.innerHTML=tab;
 
-        document.getElementById('province').innerText=processedData[0].provinceName;
-        document.getElementById('currentConfirmed').innerText=currentConfirmed;
-        document.getElementById('confirmed').innerText=confirmed;
-        document.getElementById('cure').innerText=cure;
-        document.getElementById('death').innerText=death;
-        var mapName = 'json/' + msg + '.json';
-        $.get(mapName, function (json) {
-            console.log(mapName,'map');
-            echarts.registerMap(msg, json);
-            var myChart = echarts.init(document.getElementById('main'));
-            console.log(cityData,"city");
+    document.getElementById('province').innerText=processedData[0].provinceName;
+    document.getElementById('currentConfirmed').innerText=currentConfirmed;
+    document.getElementById('confirmed').innerText=confirmed;
+    document.getElementById('cure').innerText=cure;
+    document.getElementById('death').innerText=death;
+    var mapName = 'json/' + msg + '.json';
 
-            var option = {
-                //标题设置
+    $.get(mapName, function (json) {
+        console.log(mapName,'map');
+        echarts.registerMap(msg, json);
+        var myChart = echarts.init(document.getElementById('main'));
+        console.log(cityData,"city");
 
-                title: {
-                    text: 'ECharts 入门示例',
-                    subtext: '当前现有确诊病例数，排除治愈、死亡',
-                    left:'center',
+        var option = {
+            //标题设置
+
+            title: {
+                text: 'ECharts 入门示例',
+                subtext: '当前现有确诊病例数，排除治愈、死亡',
+                left:'center',
+            },
+            series: [{
+                type:'map',
+                map:msg,
+                label:{
+                    show:false,
                 },
-                series: [{
-                    type:'map',
-                    map:msg,
-                    label:{
-                        show:false,
-                    },
-                    data:cityData
-                }],
-                tooltip:{
-                    formatter: function (params) {
-                        // console.log(params)
-                        return `地区：${params.name}<br/>确诊：${params.value|| 0}人<br/>
-                        治愈：${(params.data && params.data.curedCount) || 0}人<br/>死亡：${params.data?.deadCount || 0}人<br/>`;
-                    }
-                },
-                visualMap:[
-                    {
-                        pieces:[
-                            { min: 10000 }, // (10000, Infinity]
-                            { min: 1000, max: 9999 }, // (1000, 9999]
-                            { min: 100, max: 999 }, // (100, 999]
-                            { min: 10, max: 99 }, // (10, 99]
-                            { min: 1, max: 9 }, // (0, 9]
-                            { value:0}
-                        ],
-                        inRange: {
-                            color: ['#ffffff','#fdebcf', '#f59e83', '#e55a4e', '#cb2a2f', '#811c24']
-                        }
-                    }
-                ],
-                backgroundColor:'#f7f7f7',
-            }
-            myChart.setOption (option);
-        });
-
-        $.getJSON (processedData[0].statisticsData, function (str) {
-            var dateStaging = [];
-            dateStaging = str.data;
-            var processedData = [];
-            dateStaging.forEach(item=>{
-               processedData.push({
-                   confirmedCount:item.confirmedCount,
-                   currentConfirmedCount:item.currentConfirmedCount,
-                   curedCount:item.curedCount,
-                   deadCount:item.deadCount,
-                   dateId:item.dateId,
-
-               })
-            });
-            console.log(processedData,"stg");
-
-            for(i = 0 ; i < processedData.length;i++){
-                confirmedCount.push(processedData[i].confirmedCount);
-                currentConfirmedCount.push(processedData[i].currentConfirmedCount);
-                curedCount.push(processedData[i].curedCount);
-                deadCount.push(processedData[i].deadCount);
-                dateId.push(processedData[i].dateId);
-            }
-
-            var j = 0;
-            var dates = [];
-            for(i = 0;i < dateId.length ;i++){
-               dates[j] =  dateId[i] % 10000;
-               j++;
-            }
-            var processedDate = [];
-            for(i = 0;i < dates.length;i++){
-                var d =  dates[i] % 100;
-                var m =  Math.floor(dates[i] / 100);
-                processedDate[i] = m + '.' + d;
-            }
-            console.log(processedDate,'date')}
-
-            var myChart1 = echarts.init(document.getElementById('trend'));
-            option1 = {
-                xAxis: {
-                    type: 'category',
-                    data:processedDate,
-                },
-                yAxis: {
-                    type: 'value'
-                },
-                series: [{
-                    data: currentConfirmedCount,
-                    type: 'line',
-                    smooth: true
-                }],
-                tooltip:{
-                    formatter: function (params) {
-                        // console.log(params)
-                        return `${params.value}`;
+                data:cityData
+            }],
+            tooltip:{
+                formatter: function (params) {
+                    // console.log(params)
+                    return `地区：${params.name}<br/>确诊：${params.value|| 0}人<br/>
+                    治愈：${(params.data && params.data.curedCount) || 0}人<br/>死亡：${params.data?.deadCount || 0}人<br/>`;
+                }
+            },
+            visualMap:[
+                {
+                    pieces:[
+                        { min: 10000 }, // (10000, Infinity]
+                        { min: 1000, max: 9999 }, // (1000, 9999]
+                        { min: 100, max: 999 }, // (100, 999]
+                        { min: 10, max: 99 }, // (10, 99]
+                        { min: 1, max: 9 }, // (0, 9]
+                        { value:0}
+                    ],
+                    inRange: {
+                        color: ['#ffffff','#fdebcf', '#f59e83', '#e55a4e', '#cb2a2f', '#811c24']
                     }
                 }
-            };
-
-            var colors = ['#5793f3', '#d14a61', '#675bba'];
-
-
-            option2 = {
-                color: colors,
-
-                tooltip: {
-                    trigger: 'none',
-                    axisPointer: {
-                        type: 'cross'
-                    }
-                },
-                legend: {
-                    data:['2015 降水量', '2016 降水量']
-                },
-                grid: {
-                    top: 70,
-                    bottom: 50
-                },
-                xAxis: [
-                    {
-                        type: 'category',
-                        axisTick: {
-                            alignWithLabel: true
-                        },
-                        axisLine: {
-                            onZero: false,
-                            lineStyle: {
-                                color: colors[1]
-                            }
-                        },
-                        axisPointer: {
-                            label: {
-                                formatter: function (params) {
-                                    return '降水量  ' + params.value
-                                        + (params.seriesData.length ? '：' + params.seriesData[0].data : '');
-                                }
-                            }
-                        },
-                        data: ['2016-1', '2016-2', '2016-3', '2016-4', '2016-5', '2016-6', '2016-7', '2016-8', '2016-9', '2016-10', '2016-11', '2016-12']
-                    },
-                    {
-                        type: 'category',
-                        axisTick: {
-                            alignWithLabel: true
-                        },
-                        axisLine: {
-                            onZero: false,
-                            lineStyle: {
-                                color: colors[0]
-                            }
-                        },
-                        axisPointer: {
-                            label: {
-                                formatter: function (params) {
-                                    return '降水量  ' + params.value
-                                        + (params.seriesData.length ? '：' + params.seriesData[0].data : '');
-                                }
-                            }
-                        },
-                        data: ['2015-1', '2015-2', '2015-3', '2015-4', '2015-5', '2015-6', '2015-7', '2015-8', '2015-9', '2015-10', '2015-11', '2015-12']
-                    }
-                ],
-                yAxis: [
-                    {
-                        type: 'value'
-                    }
-                ],
-                series: [
-                    {
-                        name: '2015 降水量',
-                        type: 'line',
-                        xAxisIndex: 1,
-                        smooth: true,
-                        data: [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3]
-                    },
-                    {
-                        name: '2016 降水量',
-                        type: 'line',
-                        smooth: true,
-                        data: [3.9, 5.9, 11.1, 18.7, 48.3, 69.2, 231.6, 46.6, 55.4, 18.4, 10.3, 0.7]
-                    }
-                ]
-            };
-
-            myChart1.setOption(option1)
-
-            var btn1 = document.getElementById('btn1');
-            var btn2 = document.getElementById('btn2');
-            var btn3 = document.getElementById('btn3');
-        });
-
+            ],
+            backgroundColor:'#f7f7f7',
+        }
+        myChart.setOption (option);
     });
+
+    $.getJSON (processedData[0].statisticsData, function (str) {
+        var dateStaging = [];
+        dateStaging = str.data;
+        var processedData = [];
+        dateStaging.forEach(item=>{
+            processedData.push({
+                confirmedCount:item.confirmedCount,
+                currentConfirmedCount:item.currentConfirmedCount,
+                curedCount:item.curedCount,
+                deadCount:item.deadCount,
+                dateId:item.dateId,
+
+            })
+        });
+        console.log(processedData,"stg");
+
+        for(i = 0 ; i < processedData.length;i++){
+            confirmedCount.push(processedData[i].confirmedCount);
+            currentConfirmedCount.push(processedData[i].currentConfirmedCount);
+            curedCount.push(processedData[i].curedCount);
+            deadCount.push(processedData[i].deadCount);
+            dateId.push(processedData[i].dateId);
+        }
+
+        var j = 0;
+        var dates = [];
+        for(i = 0;i < dateId.length ;i++){
+            dates[j] =  dateId[i] % 10000;
+            j++;
+        }
+        for(i = 0;i < dates.length;i++){
+            var d =  dates[i] % 100;
+            var m =  Math.floor(dates[i] / 100);
+            processedDate[i] = m + '.' + d;
+        }
+    });
+
+    var myChart1 = echarts.init(document.getElementById('trend'));
+
+    var colors = ['#5793f3', '#d14a61', '#675bba'];
+    option1 = {
+        color: colors,
+
+        tooltip: {
+            trigger: 'none',
+            axisPointer: {
+                type: 'cross'
+            }
+        },
+        legend: {
+            data:['现存确诊', '累计确诊'],
+        },
+        grid: {
+            top: 70,
+            bottom: 50
+        },
+        xAxis: [
+            {
+                type: 'category',
+                axisTick: {
+                    alignWithLabel: true
+                },
+                axisLine: {
+                    onZero: false,
+                    lineStyle: {
+                        color: colors[1]
+                    }
+                },
+                axisPointer: {
+                    label: {
+                        formatter: function (params) {
+                            return params.value
+                                + (params.seriesData.length ? '：' + params.seriesData[0].data : '');
+                        }
+                    }
+                },
+                data: processedDate
+            },
+            {
+                type: 'category',
+                axisTick: {
+                    alignWithLabel: true
+                },
+                axisLine: {
+                    onZero: false,
+                    lineStyle: {
+                        color: colors[0]
+                    }
+                },
+                axisPointer: {
+                    label: {
+                        formatter: function (params) {
+                            return params.value
+                                + (params.seriesData.length ? '：' + params.seriesData[0].data : '');
+                        }
+                    }
+                },
+                data: processedDate
+            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: [
+            {
+                name: '现存确诊',
+                type: 'line',
+                xAxisIndex: 1,
+                smooth: true,
+                data: currentConfirmedCount
+            },
+            {
+                name: '累计确诊',
+                type: 'line',
+                smooth: true,
+                data: confirmedCount
+            }
+        ]
+    };
+    option2 = {
+        color: colors,
+
+        tooltip: {
+            trigger: 'none',
+            axisPointer: {
+                type: 'cross'
+            }
+        },
+        legend: {
+            data:['死亡人数', '治愈人数'],
+        },
+        grid: {
+            top: 70,
+            bottom: 50
+        },
+        xAxis: [
+            {
+                type: 'category',
+                axisTick: {
+                    alignWithLabel: true
+                },
+                axisLine: {
+                    onZero: false,
+                    lineStyle: {
+                        color: colors[1]
+                    }
+                },
+                axisPointer: {
+                    label: {
+                        formatter: function (params) {
+                            return params.value
+                                + (params.seriesData.length ? '：' + params.seriesData[0].data : '');
+                        }
+                    }
+                },
+                data: processedDate
+            },
+            {
+                type: 'category',
+                axisTick: {
+                    alignWithLabel: true
+                },
+                axisLine: {
+                    onZero: false,
+                    lineStyle: {
+                        color: colors[0]
+                    }
+                },
+                axisPointer: {
+                    label: {
+                        formatter: function (params) {
+                            return params.value
+                                + (params.seriesData.length ? '：' + params.seriesData[0].data : '');
+                        }
+                    }
+                },
+                data: processedDate
+            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: [
+            {
+                name: '死亡人数',
+                type: 'line',
+                xAxisIndex: 1,
+                smooth: true,
+                data: deadCount
+            },
+            {
+                name: '治愈人数',
+                type: 'line',
+                smooth: true,
+                data: curedCount
+            }
+        ]
+    };
+
+    myChart1.setOption(option1);
+
+    var btn1 = document.getElementById('btn1');
+    var btn2 = document.getElementById('btn2');
+    btn1.onclick = function () {
+        myChart1 = echarts.init(document.getElementById('trend'));
+        myChart1.setOption(option1);
+    }
+    btn2.onclick = function () {
+        myChart1 = echarts.init(document.getElementById('trend'));
+        myChart1.setOption(option2);
+    }
 </script>
 
 </body>
