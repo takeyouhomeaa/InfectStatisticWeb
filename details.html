@@ -17,7 +17,12 @@
         }
         td{
            text-align: center;
-            padding: 10px 90px;
+        }
+        #t1 td{
+            padding-top: 10px;
+        }
+        th{
+            text-align: center;
         }
 
     </style>
@@ -32,7 +37,7 @@
 
 <div class="container">
     <div class="panel panel-default">
-       <table>
+       <table width=100%" id="t1">
            <tr>
                <td>
                    <ul>
@@ -68,9 +73,14 @@
     <div id="main" class="panel panel-default" style="width: 100%;height:400px;"></div>
 </div>
 <div class="container" style="text-align: center">
-    <button type="button" class="btn btn-default">新增确诊趋势</button>
+    <button type="button" class="btn btn-default" id="">新增确诊趋势</button>
     <button type="button" class="btn btn-default">累计确诊趋势</button>
     <button type="button" class="btn btn-default">累计治愈/死亡</button>
+</div>
+
+<div class="container">
+    <div class="panel panel-default" id="cityData">
+    </div>
 </div>
 
 <div>
@@ -86,26 +96,48 @@
     // 基于准备好的dom，初始化echarts实例
     var myChart = echarts.init(document.getElementById('main'));
 
-    var date = ['mon','Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     var Numerical = [];
-    // 指定图表的配置项和数据
-        var option = {
-            xAxis: {
-                type: 'category',
-                data: date,
-            },
-            yAxis: {
-                type: 'value'
-            },
-            series: [{
-                data: [820, 932, 901, 934, 1290, 1330, 1320],
-                type: 'line',
-                smooth: true
-            }]
-        };
+    $.getJSON ("data.json", function (res) {
+        var form;
+        var processedData = []
+        res.forEach(item => {
+                processedData.push({
+                    name: item.provinceShortName,
+                    value: item.confirmedCount,
+                    deadCount: item.deadCount,
+                    curedCount: item.curedCount,
+                    cities:item.cities
+                })
+            }
+        )
+        console.log(processedData)
+        div=document.getElementById('cityData')
+        var tab='<table border=1 width=100%">'
+        // for(var i=0;i<processedData[0].length;i++){
+        //
+        // }
+        tab+='<tr>' +
+            '<th>城市</th>' +
+            '<th>现今确诊人数</th>' +
+            '<th>累计确诊人数</th>' +
+            '<th>疑似人数</th>' +
+            '<th>治愈人数</th>' +
+            '<th>死亡人数</th>' +
+            '</tr>'
+        for(i = 0;i<processedData[0].cities.length;i++) {
+            tab += '<tr>'
+            tab += "<td>" + processedData[0].cities[i].cityName + "</td>"
+            tab += "<td>" + processedData[0].cities[i].currentConfirmedCount + "</td>"
+            tab += "<td>" + processedData[0].cities[i].confirmedCount + "</td>"
+            tab += "<td>" + processedData[0].cities[i].suspectedCount + "</td>"
+            tab += "<td>" + processedData[0].cities[i].curedCount + "</td>"
+            tab += "<td>" + processedData[0].cities[i].deadCount + "</td>"
+            tab += '</tr>'
+        }
+        tab+='</table>';
+        div.innerHTML=tab
 
-    // 使用刚指定的配置项和数据显示图表。
-    myChart.setOption(option);
+    })
 </script>
 
 </body>
