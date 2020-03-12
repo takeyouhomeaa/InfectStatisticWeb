@@ -3,7 +3,7 @@
 为自己的仓库编写README.md，内容包括，作业链接、结对学号、项目介绍、以及详细的介绍项目如何构建和运行。
 ## 1.结对学号
 
-221701227,2217012
+221701227,221701211
 
 ## 2. 仓库连接
 **GITHUB的仓库** :[https://github.com/takeyouhomeaa/InfectStatisticWeb](https://github.com/takeyouhomeaa/InfectStatisticWeb)
@@ -31,8 +31,7 @@
 ## 4.注意事项
 本项目访问需要css,js,front,json文件夹以及index.html,details.html和data.json文件.
 通过index.html 开始访问项目.
-本项目在一些浏览器上无法兼容,比如:ie,推荐使用Chromium内核的浏览器
-仓库中疫情地图文件夹是开发未完全前的文件夹,内容不完整.
-python 文件需要requests 和 beautifulsoup 库
+本项目在一些浏览器上无法兼容,比如:ie,请使用Chrome,新版Egde或者firefox进行浏览
+python 文件需要requests 和 beautifulsoup 库,生产的json文件在D:盘下的data.json
 ## 5.demo
 [demo](http://49.234.86.39/InfectStatisticWeb/)
