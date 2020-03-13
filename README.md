@@ -31,7 +31,7 @@
 ## 4.注意事项
 本项目访问需要css,js,front,json文件夹以及index.html,details.html和data.json文件.
 通过index.html 开始访问项目.
-本项目在一些浏览器上无法兼容,比如:ie,请使用Chrome,新版Egde或者firefox进行浏览
+本项目使用了AJAX,直接打开index.html会产生产生错误,请使用编译器打开.如果想要看到网页的效果,请直接打开下面的demo.
 python 文件需要requests 和 beautifulsoup 库,生产的json文件在D:盘下的data.json
 ## 5.demo
 [demo](http://49.234.86.39/InfectStatisticWeb/)
